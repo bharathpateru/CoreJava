@@ -1,5 +1,6 @@
 package com.corejava.java8.streamsrealworld.emp;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -17,7 +18,7 @@ public class EmployeeService {
                 employeeList.stream()
                         .filter(Employee::isActive)
                         .filter(emp -> "Engineering".equalsIgnoreCase(emp.getDepartment()))
-                        .filter(emp -> emp.getSalary() > 80_000)
+                        .filter(emp -> emp.getSalary() > 80000)
                         .map(Employee::getEmail)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());

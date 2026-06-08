@@ -1,60 +1,74 @@
 package com.corejava.threads.executorsservice;
 
-
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class ProducerConsumerExample {
-    int capacity;
-    Queue<Integer> queue = new LinkedList<>();
-    public ProducerConsumerExample(int capacity){
-        this.capacity = capacity;
-    }
 
-    public synchronized void producer(int value) throws InterruptedException {
-        while (queue.size()==capacity){
-            wait();
-        }
-        queue.add(value);
-        System.out.println("Produced : "+value);
-        notifyAll();
+    private static final int QUEUE_SIZE = 5;
 
-    }
-
-    public synchronized int consumer() throws InterruptedException {
-        while (queue.isEmpty()){
-            wait();
-        }
-        int value = queue.poll();
-        System.out.println("Consumed :"+value);
-        notifyAll();
-        return value;
-    }
     public static void main(String[] args) {
-        ProducerConsumerExample pce = new ProducerConsumerExample(5);
-        Thread producerThread = new Thread(()->{
-            try {
-                for (int i = 0; i < 100; i++) {
-                    pce.producer(i);
-                    Thread.sleep(100);
-                }
-            }catch (InterruptedException ex){
-                Thread.currentThread().interrupt();
-            }
-        });
+        BlockingQueue<String> queue = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
-        Thread consumerThread = new Thread(()->{
-            try {
-                for (int i = 0; i < 100; i++) {
-                    pce.consumer();
-                   // Thread.sleep(100);
-                }
-            }catch (InterruptedException ex){
-                Thread.currentThread().interrupt();
-            }
-        });
+        Thread producer = new Thread(new Producer(queue));
+        Thread consumer = new Thread(new Consumer(queue));
 
-        producerThread.start();
-        consumerThread.start();
+        producer.start();
+        consumer.start();
+    }
+}
+
+// Producer class
+class Producer implements Runnable {
+    private BlockingQueue<String> queue;
+
+    public Producer(BlockingQueue<String> queue) {
+        this.queue = queue;
+    }
+
+    @Override
+    public void run() {
+        try {
+            for (int i = 0; i < 10; i++) {
+                String item = "item-" + i;
+                queue.put(item); // blocks if full
+                System.out.println("Produced: " + item);
+                Thread.sleep((long) (Math.random() * 1000));
+            }
+
+            // Send termination signal
+            queue.put("STOP");
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+// Consumer class
+class Consumer implements Runnable {
+    private BlockingQueue<String> queue;
+
+    public Consumer(BlockingQueue<String> queue) {
+        this.queue = queue;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                String item = queue.take(); // blocks if empty
+
+                if (item.equals("STOP")) {
+                    break;
+                }
+
+                System.out.println("Consumed: " + item);
+                Thread.sleep((long) (Math.random() * 1500));
+            }
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

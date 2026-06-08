@@ -1,8 +1,11 @@
 package com.corejava.oops.methodoverloadingvsoverriding;
 
 class Abc {
-    private void display() {
+    void display() {
         System.out.println("A");
+    }
+    Abc(){
+        System.out.println("----------Abc constructor--------------");
     }
 }
 
@@ -10,9 +13,15 @@ class Bbc extends Abc {
     void display() {
         System.out.println("B");
     }
+
+    Bbc(){
+        System.out.println("**********Bbc Constructor************");
+    }
 }
+
 class Cbc {
-public static void main(String[] args){
-Abc a = new Bbc();
-}
+    public static void main(String[] args) {
+        Abc a = new Bbc();
+        a.display();
+    }
 }

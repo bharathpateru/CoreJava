@@ -33,7 +33,10 @@ public class CartService {
         )
       */
         Map<String, Double> cartValuePerUser = userList.stream()
-                .collect(Collectors.toMap(User::getUserId, user -> user.getCart().flatMap(Cart::getItems).stream().flatMap(List::stream).mapToDouble(ci -> ci.getPrice() * ci.getQuantity()).sum()));
+                .collect(Collectors.toMap(User::getUserId,
+                        user -> user.getCart().flatMap(Cart::getItems)
+                                .stream().flatMap(List::stream)
+                                .mapToDouble(ci -> ci.getPrice() * ci.getQuantity()).sum()));
         //System.out.println(cartValuePerUser);
 
         List<List<String>> listOfLists = Arrays.asList(
